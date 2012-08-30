@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -27,7 +26,6 @@ public class thcsw002Parser implements ActionListener {
 	/* Main File Opener GUI */
 	private JFrame serverWindow = new JFrame("FileParser for Switches");
 	private JPanel mainPanel = new JPanel();
-	private JPanel txtPanel = new JPanel();
 	private JPanel btnPanel = new JPanel();
 	private JTextArea outTextArea = new JTextArea(21,36);
 //	private JButton closeButton = new JButton("Close");
@@ -45,6 +43,7 @@ public class thcsw002Parser implements ActionListener {
 	private JMenu viewOptions; // view
 	private JMenuItem viewFileItem; 
 	
+	@SuppressWarnings("unused")
 	public static void main (String[] args) throws Exception {
 		String filename = null;
 		String identifiers = null;
