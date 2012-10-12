@@ -135,6 +135,8 @@ public class thcsw002Parser implements ActionListener {
 				}
 				// Print out the port 
 				if (line.contains("Port ") || line.contains("port ")) {
+					boolean debugger = false;
+					if (line.contains("6/47")) debugger = true;
 					String output = null;
 					for (IdTagObjs a : idTags) {
 						if (output == null) output = a.getIdVal();
@@ -148,7 +150,16 @@ public class thcsw002Parser implements ActionListener {
 			}
 			
 		} 
-		catch (NullPointerException npe) {}
+		// Flush all the stuff to screen if EOF is reached
+		catch (NullPointerException npe) {
+				String output = null;
+				for (IdTagObjs a : idTags) {
+					if (output == null) output = a.getIdVal();
+					else output += commaDelimeter + a.getIdVal();
+				}
+				printToConsole(output);
+				// Be done with the parsing
+		}
 		catch (IOException fnfe) {
 			printToConsole("Can't open the file, make sure it's there.");
 		} 
