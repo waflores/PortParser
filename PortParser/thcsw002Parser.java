@@ -135,8 +135,6 @@ public class thcsw002Parser implements ActionListener {
 				}
 				// Print out the port 
 				if (line.contains("Port ") || line.contains("port ")) {
-					boolean debugger = false;
-					if (line.contains("6/47")) debugger = true;
 					String output = null;
 					for (IdTagObjs a : idTags) {
 						if (output == null) output = a.getIdVal();
