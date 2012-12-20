@@ -11,17 +11,17 @@
 * Created on December 20, 2012
 *******************************************************************************/
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
 import javax.swing.*;
-import javax.swing.text.html.parser.Parser;
 
 /*******************************************************************************
 * Purpose: Class definition for FileViewer editor
 * 
 * Author: Will Flores waflores@ncsu.edu
 *******************************************************************************/
-public class ParserUI {
+public class ParserUI implements ActionListener{
 	/* Main File Opener GUI */
 	private int defaultRows = 21; /* Rows for the TextArea */
 	private int defaultColumns = 36; /* Columns for the TextArea */
@@ -125,6 +125,7 @@ public class ParserUI {
 		fileOptions = new JMenu("File");
 		fileOptions.setMnemonic(KeyEvent.VK_F); /* Alt+F will activate this menu */
 		newFileItem = new JMenuItem("New");
+		
 		openFileItem = new JMenuItem("Open File...");
 		saveExisitingFileItem = new JMenuItem("Save");
 		saveAsItem = new JMenuItem("Save As...");
@@ -156,6 +157,19 @@ public class ParserUI {
 		viewFileItem = new JMenuItem("View File");
 		//viewFileItem.addActionListener(this); /* Reactivate */
 		viewOptions.add(viewFileItem);
+	}
+
+	@Override
+	/*******************************************************************************
+	* Purpose: Processes button p
+	* Passed: No arguments passed.
+	* Locals: No locals variables used.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
+	public void actionPerformed(ActionEvent ae) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
