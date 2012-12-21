@@ -46,7 +46,8 @@ public class ParserUI implements ActionListener{
 	private JMenuItem parseItem; 
 	
 	private JMenu helpOptions; // view
-	private JMenuItem aboutFileItem; 
+	private JMenuItem aboutFileItem;
+	private String currentFileName = null; 
 	
 	
 	/*******************************************************************************
@@ -189,7 +190,22 @@ public class ParserUI implements ActionListener{
 	*******************************************************************************/
 	public void actionPerformed(ActionEvent ae) {
 		/* Process through File Menu events */
-		if (ae.getSource() == newFileItem) {}
+		if (ae.getSource() == newFileItem) {
+			int retval = JOptionPane.showConfirmDialog(mainWindow, "Do you want to save file before creating new file?", "Create a New File", JOptionPane.YES_NO_CANCEL_OPTION);
+			try { 
+				switch (retval) {
+					case JOptionPane.YES_OPTION:
+						saveFile(); // Fall thru to close out of program
+					case JOptionPane.NO_OPTION:
+						clearScreen(); // New Document
+						break;
+					default: break; // closed out or cancelled
+				}
+			} catch (IOException ioe) {
+					// Handle saveFile Exception
+					JOptionPane.showMessageDialog(mainWindow, "Couldn't save to file, try again.");
+				}
+		}
 		if (ae.getSource() == openFileItem) {
 			/* Open a file */
 			String fileName = null;
@@ -206,10 +222,47 @@ public class ParserUI implements ActionListener{
 				JOptionPane.showMessageDialog(mainWindow, "File error, please try again...");
 			}
 		}
-		if (ae.getSource() == saveExisitingFileItem) {}
-		if (ae.getSource() == saveAsItem) {}
+		if (ae.getSource() == saveExisitingFileItem) {
+			try {
+				saveFile(this.currentFileName);
+			}
+			catch (NullPointerException npe) {
+				try {
+					saveFile();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(mainWindow, "Couldn't save to file, try again.");
+				}
+			}
+			catch (IOException ioe) {
+				JOptionPane.showMessageDialog(mainWindow, "Couldn't save current file, try again.");
+			}
+		}
+		if (ae.getSource() == saveAsItem) {
+			try {
+				saveFile();
+			}
+			catch (IOException ioe) {
+				JOptionPane.showMessageDialog(mainWindow, "Couldn't save to file, try again.");
+			}
+		}
 		if (ae.getSource() == printPageItem) {}
-		if (ae.getSource() == exitProgramItem) {}
+		if (ae.getSource() == exitProgramItem) {
+			int retval = JOptionPane.showConfirmDialog(mainWindow, "Do you want to save file before exiting?", "Closing Program", JOptionPane.YES_NO_CANCEL_OPTION);
+			try {
+				switch (retval){
+				case JOptionPane.YES_OPTION:
+					saveFile(); // Fall thru to close out of program
+				case JOptionPane.NO_OPTION:
+					System.exit(0); // terminate app
+					break;
+				default: break; // closed out or cancelled
+				}
+			}
+				catch (IOException ioe) {
+					// Handle saveFile Exception
+					JOptionPane.showMessageDialog(mainWindow, "Couldn't save to file, try again.");
+				}
+		}
 		
 		/* Process through Parse Menu events */
 		if (ae.getSource() == parseItem) {}
@@ -257,4 +310,31 @@ public class ParserUI implements ActionListener{
 		}
 	}
 	
+	private void saveFile () throws IOException {
+		JFileChooser saveFile = new JFileChooser();
+		int retval = saveFile.showSaveDialog(saveFile);
+		
+		String fileToSave = null;
+		String fileData = null;
+		
+		if (retval == JFileChooser.APPROVE_OPTION) {
+			fileToSave = saveFile.getSelectedFile().getAbsolutePath();
+			this.currentFileName = fileToSave;
+			fileData = outTextArea.getText();
+			BufferedWriter diskFile = new BufferedWriter(new FileWriter(fileToSave));
+			diskFile.write(fileData);
+			diskFile.close();
+			JOptionPane.showMessageDialog(mainWindow, "Done Saving to " + fileToSave);
+		}
+		else {
+			JOptionPane.showMessageDialog(null, "Data not saved to file.");
+		}
+	}
+	
+	private void saveFile(String currentFileName) throws IOException {
+		String fileData = outTextArea.getText();
+		BufferedWriter diskFile = new BufferedWriter(new FileWriter(currentFileName));
+		diskFile.write(fileData);
+		diskFile.close();
+	}
 }
