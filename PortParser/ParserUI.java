@@ -11,9 +11,8 @@
 * Created on December 20, 2012
 *******************************************************************************/
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.io.*;
+import java.awt.event.*;
 import javax.swing.*;
 
 /*******************************************************************************
@@ -30,9 +29,9 @@ public class ParserUI implements ActionListener{
 	private JPanel btnPanel = new JPanel();
 	private JTextArea outTextArea = new JTextArea(defaultRows, defaultColumns);
 
-	//private String newLine = System.getProperty("line.separator"); /* Reactivate */
+	private String newLine = System.getProperty("line.separator"); /* Reactivate */
 	private JScrollPane outScrollPane = new JScrollPane(outTextArea);
-	//private JScrollBar vsb = outScrollPane.getVerticalScrollBar(); /* Reactivate */
+	private JScrollBar vsb = outScrollPane.getVerticalScrollBar(); /* Reactivate */
 	
 	/* Menu Bar */
 	private JMenu fileOptions; // file
@@ -40,12 +39,14 @@ public class ParserUI implements ActionListener{
 	private JMenuItem newFileItem;
 	private JMenuItem saveExisitingFileItem;
 	private JMenuItem saveAsItem;
-//	private JMenuItem pageSetupItem;
 	private JMenuItem printPageItem;
 	private JMenuItem exitProgramItem;
 	
-	private JMenu viewOptions; // view
-	private JMenuItem viewFileItem; 
+	private JMenu parseOptions; // parsing
+	private JMenuItem parseItem; 
+	
+	private JMenu helpOptions; // view
+	private JMenuItem aboutFileItem; 
 	
 	
 	/*******************************************************************************
@@ -91,7 +92,6 @@ public class ParserUI implements ActionListener{
 		/* Output gui */
 		mainWindow.setSize(450, 450);
 		mainWindow.setLocation(250, 250);
-		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 		
 		mainWindow.getContentPane().add(mainPanel, "Center");
@@ -99,17 +99,18 @@ public class ParserUI implements ActionListener{
 		mainPanel.add(outScrollPane);
 
 		outTextArea.setEditable(true); // Just make this a display text area
-		
 		/* Create the menuBar */
 		createFileMenu();
-		createViewMenu();
+		createParseMenu();
+		createHelpMenu();
 		
 		JMenuBar menuBar = new JMenuBar();
 		mainWindow.setJMenuBar(menuBar);
 		menuBar.add(fileOptions);
-		menuBar.add(viewOptions);
+		menuBar.add(parseOptions);
+		menuBar.add(helpOptions);
 		
-		//printToConsole("Open a file to parse by clicking File > Open File..."); /* Reactivate */
+		clearScreen();
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainWindow.setVisible(true);
 	}
@@ -124,17 +125,20 @@ public class ParserUI implements ActionListener{
 	private void createFileMenu() {
 		fileOptions = new JMenu("File");
 		fileOptions.setMnemonic(KeyEvent.VK_F); /* Alt+F will activate this menu */
-		newFileItem = new JMenuItem("New");
 		
+		newFileItem = new JMenuItem("New");
 		openFileItem = new JMenuItem("Open File...");
 		saveExisitingFileItem = new JMenuItem("Save");
 		saveAsItem = new JMenuItem("Save As...");
 		printPageItem = new JMenuItem("Print...");
 		exitProgramItem = new JMenuItem("Exit Program");
-		
-		//openNewFileItem.addActionListener(this); /* Reactivate */
-		//saveExisitingFileItem.addActionListener(this); /* Reactivate */
-		//exitProgramItem.addActionListener(this); /* Reactivate */
+		/* Register buttons with Java Interrupt Handler */
+		newFileItem.addActionListener(this);
+		openFileItem.addActionListener(this);
+		saveExisitingFileItem.addActionListener(this);
+		saveAsItem.addActionListener(this);
+		printPageItem.addActionListener(this);
+		exitProgramItem.addActionListener(this);
 		
 		fileOptions.add(newFileItem);
 		fileOptions.add(openFileItem);
@@ -146,30 +150,111 @@ public class ParserUI implements ActionListener{
 	}
 	
 	/*******************************************************************************
-	* Purpose: Creates the View Menu
+	* Purpose: Creates the Parsing Menu
 	* Passed: No arguments passed.
 	* Locals: No locals variables used.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
-	private void createViewMenu() {
-		viewOptions = new JMenu("View");
-		viewFileItem = new JMenuItem("View File");
-		//viewFileItem.addActionListener(this); /* Reactivate */
-		viewOptions.add(viewFileItem);
+	private void createParseMenu() {
+		parseOptions = new JMenu("Parse");
+		parseOptions.setMnemonic(KeyEvent.VK_R);
+		parseItem = new JMenuItem("Parse this file...");
+		parseItem.addActionListener(this);
+		parseOptions.add(parseItem);
+	}
+	
+	/*******************************************************************************
+	* Purpose: Creates the Help Menu
+	* Passed: No arguments passed.
+	* Locals: No locals variables used.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
+	private void createHelpMenu() {
+		helpOptions = new JMenu("Help");
+		helpOptions.setMnemonic(KeyEvent.VK_H);
+		aboutFileItem = new JMenuItem("About FileViewer");
+		aboutFileItem.addActionListener(this);
+		helpOptions.add(aboutFileItem);
 	}
 
 	@Override
 	/*******************************************************************************
-	* Purpose: Processes button p
-	* Passed: No arguments passed.
+	* Purpose: Processes button presses on the App
+	* Passed: ActionEvent ae - Variable from Java Interrupt Handler.
 	* Locals: No locals variables used.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
 	public void actionPerformed(ActionEvent ae) {
-		// TODO Auto-generated method stub
+		/* Process through File Menu events */
+		if (ae.getSource() == newFileItem) {}
+		if (ae.getSource() == openFileItem) {
+			/* Open a file */
+			String fileName = null;
+			JFileChooser jfc = new JFileChooser();
+			int retval = jfc.showOpenDialog(jfc);
+			if (retval == JFileChooser.APPROVE_OPTION) fileName = jfc.getSelectedFile().getAbsolutePath();
+			try {
+				openFile(fileName);
+			}
+			catch (NullPointerException npe) { /* No filename */
+				 JOptionPane.showMessageDialog(mainWindow,  "You must choose a file name.");
+			} 
+			catch (IOException e) {
+				JOptionPane.showMessageDialog(mainWindow, "File error, please try again...");
+			}
+		}
+		if (ae.getSource() == saveExisitingFileItem) {}
+		if (ae.getSource() == saveAsItem) {}
+		if (ae.getSource() == printPageItem) {}
+		if (ae.getSource() == exitProgramItem) {}
 		
+		/* Process through Parse Menu events */
+		if (ae.getSource() == parseItem) {}
+		
+		/* Process through Help Menu events */
+		if (ae.getSource() == aboutFileItem) {}
+	}
+	
+	/***** Control the Display *****/
+	/*******************************************************************************
+	* Purpose: Display text on the editable text box
+	* Passed: String msg - Text to be displayed.
+	* Locals: No locals variables used.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
+	private void printToConsole(String msg) {
+		outTextArea.append(msg + newLine);
+		vsb.setValue(vsb.getMaximum());
+		outTextArea.setCaretPosition(outTextArea.getDocument().getLength());
+	}
+	
+	private void clearScreen() {
+		outTextArea.setText("");
+	}
+	
+	private void openFile(String fileName) throws IOException {
+		BufferedReader diskFile = new BufferedReader(new FileReader(fileName));
+		mainWindow.setTitle("The contents of " + fileName + " is:");
+		
+		clearScreen();
+		while (true) {
+			try {
+				printToConsole(diskFile.readLine().trim());
+			}
+			catch (NullPointerException npe) { /* reached EOF */
+				diskFile.close();
+				break;
+			}
+			catch(IOException ioe) {
+				JOptionPane.showMessageDialog(mainWindow, "Couldn't open the file, please try again...");
+				diskFile.close();
+				break;
+			}
+		}
 	}
 	
 }
