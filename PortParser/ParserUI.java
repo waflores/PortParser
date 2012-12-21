@@ -12,7 +12,13 @@
 *******************************************************************************/
 
 import java.io.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.*;
+import java.awt.print.*;
+
+import javax.print.attribute.*;
 import javax.swing.*;
 
 /*******************************************************************************
@@ -20,7 +26,7 @@ import javax.swing.*;
 * 
 * Author: Will Flores waflores@ncsu.edu
 *******************************************************************************/
-public class ParserUI implements ActionListener{
+public class ParserUI implements ActionListener, Printable{
 	/* Main File Opener GUI */
 	private int defaultRows = 21; /* Rows for the TextArea */
 	private int defaultColumns = 36; /* Columns for the TextArea */
@@ -47,7 +53,8 @@ public class ParserUI implements ActionListener{
 	
 	private JMenu helpOptions; // view
 	private JMenuItem aboutFileItem;
-	private String currentFileName = null; 
+	private String currentFileName = null;
+	private Component componentToBePrinted; 
 	
 	
 	/*******************************************************************************
@@ -110,6 +117,13 @@ public class ParserUI implements ActionListener{
 		menuBar.add(fileOptions);
 		menuBar.add(parseOptions);
 		menuBar.add(helpOptions);
+		
+		/* Use the native L & F - throughout */
+		try {
+            String cn = UIManager.getSystemLookAndFeelClassName();
+            UIManager.setLookAndFeel(cn); // Use the native L&F
+        } catch (Exception cnf) {
+        }
 		
 		clearScreen();
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -245,7 +259,20 @@ public class ParserUI implements ActionListener{
 				JOptionPane.showMessageDialog(mainWindow, "Couldn't save to file, try again.");
 			}
 		}
-		if (ae.getSource() == printPageItem) {}
+		if (ae.getSource() == printPageItem) {
+	        PrinterJob job = PrinterJob.getPrinterJob();
+	        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+	        PageFormat pf = job.pageDialog(aset);
+	        job.setPrintable(this, pf);
+	        boolean ok = job.printDialog(aset);
+	        if (ok) {
+	            try {
+	                 job.print(aset);
+	            } catch (PrinterException ex) {
+	             /* The job did not successfully complete */
+	            }
+	        }
+		}
 		if (ae.getSource() == exitProgramItem) {
 			int retval = JOptionPane.showConfirmDialog(mainWindow, "Do you want to save file before exiting?", "Closing Program", JOptionPane.YES_NO_CANCEL_OPTION);
 			try {
@@ -302,7 +329,7 @@ public class ParserUI implements ActionListener{
 				diskFile.close();
 				break;
 			}
-			catch(IOException ioe) {
+			catch(IOException ioe) { /* Something broke for real */
 				JOptionPane.showMessageDialog(mainWindow, "Couldn't open the file, please try again...");
 				diskFile.close();
 				break;
@@ -337,4 +364,38 @@ public class ParserUI implements ActionListener{
 		diskFile.write(fileData);
 		diskFile.close();
 	}
+
+	@Override
+	public int print(Graphics g, PageFormat pf, int page)
+			throws PrinterException {
+		this.componentToBePrinted = outTextArea;
+		 if (page > 0) { /* We have only one page, and 'page' is zero-based */
+	            return NO_SUCH_PAGE;
+	        }
+	 
+	        /* User (0,0) is typically outside the imageable area, so we must
+	         * translate by the X and Y values in the PageFormat to avoid clipping
+	         */
+	        Graphics2D g2d = (Graphics2D)g;
+	        g2d.translate(pf.getImageableX(), pf.getImageableY());
+	 
+	        /* Now we perform our rendering */
+	        disableDoubleBuffering(componentToBePrinted);
+	        componentToBePrinted.paintAll(g2d);
+	        enableDoubleBuffering(componentToBePrinted);
+	 
+	        /* tell the caller that this page is part of the printed document */
+	        return PAGE_EXISTS;
+	}
+	
+	  public static void disableDoubleBuffering(Component c) {
+		    RepaintManager currentManager = RepaintManager.currentManager(c);
+		    currentManager.setDoubleBufferingEnabled(false);
+	  }
+
+	  public static void enableDoubleBuffering(Component c) {
+	    RepaintManager currentManager = RepaintManager.currentManager(c);
+	    currentManager.setDoubleBufferingEnabled(true);
+	  }
+
 }
