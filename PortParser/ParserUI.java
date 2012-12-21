@@ -13,6 +13,7 @@
 
 import java.io.*;
 import java.awt.Component;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.*;
@@ -369,10 +370,21 @@ public class ParserUI implements ActionListener, Printable{
 	public int print(Graphics g, PageFormat pf, int page)
 			throws PrinterException {
 		this.componentToBePrinted = outTextArea;
-		 if (page > 0) { /* We have only one page, and 'page' is zero-based */
+		
+		//String[] textLines = outTextArea.getText().length() 
+		FontMetrics metrics = g.getFontMetrics();
+		int lineHeight = metrics.getHeight();
+		int linesPerPage = (int) (pf.getImageableHeight() / lineHeight);
+		//int numBreaks = (textLines.length - 1) / linesPerPage;
+		//int[] pageBreaks = new int[numBreaks];
+		
+//		for (int b = 0; b < numBreaks; b++) {
+//			pageBreaks[b] = (b+1)* linesPerPage;
+//		}
+		
+		 if (page > /*pageBreaks.length*/ 0 ) { /* We can have multiple pages, and 'page' is zero-based */
 	            return NO_SUCH_PAGE;
 	        }
-	 
 	        /* User (0,0) is typically outside the imageable area, so we must
 	         * translate by the X and Y values in the PageFormat to avoid clipping
 	         */
@@ -380,9 +392,7 @@ public class ParserUI implements ActionListener, Printable{
 	        g2d.translate(pf.getImageableX(), pf.getImageableY());
 	 
 	        /* Now we perform our rendering */
-	        disableDoubleBuffering(componentToBePrinted);
-	        componentToBePrinted.paintAll(g2d);
-	        enableDoubleBuffering(componentToBePrinted);
+	        
 	 
 	        /* tell the caller that this page is part of the printed document */
 	        return PAGE_EXISTS;
