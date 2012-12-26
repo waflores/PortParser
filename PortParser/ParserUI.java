@@ -12,14 +12,9 @@
 *******************************************************************************/
 
 import java.io.*;
-import java.awt.Component;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.Font;
 import java.awt.event.*;
 import java.awt.print.*;
-
-import javax.print.attribute.*;
 import javax.swing.*;
 
 
@@ -28,14 +23,15 @@ import javax.swing.*;
 * 
 * Author: Will Flores waflores@ncsu.edu
 *******************************************************************************/
-public class ParserUI implements ActionListener, Printable{
+@SuppressWarnings("serial")
+public class ParserUI implements ActionListener {
 	/* Main File Opener GUI */
 	private int defaultRows = 21; /* Rows for the TextArea */
 	private int defaultColumns = 36; /* Columns for the TextArea */
 	private JFrame mainWindow = new JFrame("FileViewer"); /* Main window frame where TextBox resides */
 	private JPanel mainPanel = new JPanel();
 	private JPanel btnPanel = new JPanel();
-	private JTextArea outTextArea = new JTextArea(defaultRows, defaultColumns);
+	private JTextArea outTextArea;
 	private JTextArea dummyTextArea = new JTextArea(); /* Hidden from view for printing purposes */
 
 	private String newLine = System.getProperty("line.separator"); /* Reactivate */
@@ -105,7 +101,13 @@ public class ParserUI implements ActionListener, Printable{
 		mainWindow.getContentPane().add(mainPanel, "Center");
 		mainWindow.getContentPane().add(btnPanel, "South");
 		mainPanel.add(outScrollPane);
-
+		
+		outTextArea = new JTextArea(defaultRows, defaultColumns) {
+			public void setFont(Font f) {
+				super.setFont(f);
+				dummyTextArea.setFont(f);
+			}
+		};
 		outTextArea.setEditable(true); // Just make this a display text area
 		dummyTextArea.setLineWrap(true); // this is for printing purposes
 		dummyTextArea.setWrapStyleWord(true);
@@ -358,79 +360,61 @@ public class ParserUI implements ActionListener, Printable{
 
     // Printing text
     public void print() {
-//        PrinterJob job = PrinterJob.getPrinterJob();
-//        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-//        PageFormat pf = job.pageDialog(aset);
-//        job.setPrintable(this, pf);
-//        boolean ok = job.printDialog(aset);
-//        if (ok) {
-//            try {
-//                 job.print(aset);
-//            } catch (PrinterException ex) {
-//             /* The job did not successfully complete */
-//            }
-        //} // if (ok)
-        	
-        // Print all text
-        if (outTextArea.getSelectedText() == null)
-        {
+        if (outTextArea.getSelectedText() == null) {
             dummyTextArea.setText(outTextArea.getText());
         }
-        else // Print selected text
-        {
+        else /* Print selected text*/ {
             dummyTextArea.setText(outTextArea.getSelectedText());
         }
-        try
-        {
+        try {
             // This will show the print dialog.
             dummyTextArea.print();
         }
-        catch (PrinterException e)
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        catch (PrinterException e) {
+            e.printStackTrace();  
         }
         // Set focus so that selected text is highlighted.
         outTextArea.requestFocusInWindow();
     } 
 
-	@Override
-	public int print(Graphics g, PageFormat pf, int page)
-			throws PrinterException {
-		//String[] textLines = outTextArea.getText().length() 
-		FontMetrics metrics = g.getFontMetrics();
-		int lineHeight = metrics.getHeight();
-		int linesPerPage = (int) (pf.getImageableHeight() / lineHeight);
-		//int numBreaks = (textLines.length - 1) / linesPerPage;
-		//int[] pageBreaks = new int[numBreaks];
-		
-//		for (int b = 0; b < numBreaks; b++) {
-//			pageBreaks[b] = (b+1)* linesPerPage;
-//		}
-		
-		 if (page > /*pageBreaks.length*/ 0 ) { /* We can have multiple pages, and 'page' is zero-based */
-	            return NO_SUCH_PAGE;
-	        }
-	        /* User (0,0) is typically outside the imageable area, so we must
-	         * translate by the X and Y values in the PageFormat to avoid clipping
-	         */
-	        Graphics2D g2d = (Graphics2D)g;
-	        g2d.translate(pf.getImageableX(), pf.getImageableY());
-	 
-	        /* Now we perform our rendering */
-	        
-	 
-	        /* tell the caller that this page is part of the printed document */
-	        return PAGE_EXISTS;
-	}
-	
-	  public static void disableDoubleBuffering(Component c) {
-		    RepaintManager currentManager = RepaintManager.currentManager(c);
-		    currentManager.setDoubleBufferingEnabled(false);
-	  }
-
-	  public static void enableDoubleBuffering(Component c) {
-	    RepaintManager currentManager = RepaintManager.currentManager(c);
-	    currentManager.setDoubleBufferingEnabled(true);
-	  }
+//	@Override
+//	public int print(Graphics g, PageFormat pf, int page)
+//			throws PrinterException {
+//		//String[] textLines = outTextArea.getText().length() 
+//		FontMetrics metrics = g.getFontMetrics();
+//		int lineHeight = metrics.getHeight();
+//		int linesPerPage = (int) (pf.getImageableHeight() / lineHeight);
+//		//int numBreaks = (textLines.length - 1) / linesPerPage;
+//		//int[] pageBreaks = new int[numBreaks];
+//		
+////		for (int b = 0; b < numBreaks; b++) {
+////			pageBreaks[b] = (b+1)* linesPerPage;
+////		}
+//		
+//		 if (page > /*pageBreaks.length*/ 0 ) { /* We can have multiple pages, and 'page' is zero-based */
+//	            return NO_SUCH_PAGE;
+//	        }
+//	        /* User (0,0) is typically outside the imageable area, so we must
+//	         * translate by the X and Y values in the PageFormat to avoid clipping
+//	         */
+//	        Graphics2D g2d = (Graphics2D)g;
+//	        g2d.translate(pf.getImageableX(), pf.getImageableY());
+//	 
+//	        /* Now we perform our rendering */
+//	        
+//	 
+//	        /* tell the caller that this page is part of the printed document */
+//	        return PAGE_EXISTS;
+//	}
+//	
+//	  public static void disableDoubleBuffering(Component c) {
+//		    RepaintManager currentManager = RepaintManager.currentManager(c);
+//		    currentManager.setDoubleBufferingEnabled(false);
+//	  }
+//
+//	  public static void enableDoubleBuffering(Component c) {
+//	    RepaintManager currentManager = RepaintManager.currentManager(c);
+//	    currentManager.setDoubleBufferingEnabled(true);
+//	  }
 
 }
