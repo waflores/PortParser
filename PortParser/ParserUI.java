@@ -31,9 +31,13 @@ public class ParserUI implements ActionListener {
 	private JFrame mainWindow = new JFrame("FileViewer"); /* Main window frame where TextBox resides */
 	private JPanel mainPanel = new JPanel();
 	private JPanel btnPanel = new JPanel();
-	private JTextArea outTextArea;
 	private JTextArea dummyTextArea = new JTextArea(); /* Hidden from view for printing purposes */
-
+	private JTextArea outTextArea = new JTextArea(defaultRows, defaultColumns) {
+		public void setFont(Font f) {
+			super.setFont(f);
+			dummyTextArea.setFont(f);
+		}
+	};
 	private String newLine = System.getProperty("line.separator"); /* Reactivate */
 	private JScrollPane outScrollPane = new JScrollPane(outTextArea);
 	private JScrollBar vsb = outScrollPane.getVerticalScrollBar(); /* Reactivate */
@@ -102,12 +106,6 @@ public class ParserUI implements ActionListener {
 		mainWindow.getContentPane().add(btnPanel, "South");
 		mainPanel.add(outScrollPane);
 		
-		outTextArea = new JTextArea(defaultRows, defaultColumns) {
-			public void setFont(Font f) {
-				super.setFont(f);
-				dummyTextArea.setFont(f);
-			}
-		};
 		outTextArea.setEditable(true); // Just make this a display text area
 		dummyTextArea.setLineWrap(true); // this is for printing purposes
 		dummyTextArea.setWrapStyleWord(true);
@@ -376,45 +374,4 @@ public class ParserUI implements ActionListener {
         // Set focus so that selected text is highlighted.
         outTextArea.requestFocusInWindow();
     } 
-
-//	@Override
-//	public int print(Graphics g, PageFormat pf, int page)
-//			throws PrinterException {
-//		//String[] textLines = outTextArea.getText().length() 
-//		FontMetrics metrics = g.getFontMetrics();
-//		int lineHeight = metrics.getHeight();
-//		int linesPerPage = (int) (pf.getImageableHeight() / lineHeight);
-//		//int numBreaks = (textLines.length - 1) / linesPerPage;
-//		//int[] pageBreaks = new int[numBreaks];
-//		
-////		for (int b = 0; b < numBreaks; b++) {
-////			pageBreaks[b] = (b+1)* linesPerPage;
-////		}
-//		
-//		 if (page > /*pageBreaks.length*/ 0 ) { /* We can have multiple pages, and 'page' is zero-based */
-//	            return NO_SUCH_PAGE;
-//	        }
-//	        /* User (0,0) is typically outside the imageable area, so we must
-//	         * translate by the X and Y values in the PageFormat to avoid clipping
-//	         */
-//	        Graphics2D g2d = (Graphics2D)g;
-//	        g2d.translate(pf.getImageableX(), pf.getImageableY());
-//	 
-//	        /* Now we perform our rendering */
-//	        
-//	 
-//	        /* tell the caller that this page is part of the printed document */
-//	        return PAGE_EXISTS;
-//	}
-//	
-//	  public static void disableDoubleBuffering(Component c) {
-//		    RepaintManager currentManager = RepaintManager.currentManager(c);
-//		    currentManager.setDoubleBufferingEnabled(false);
-//	  }
-//
-//	  public static void enableDoubleBuffering(Component c) {
-//	    RepaintManager currentManager = RepaintManager.currentManager(c);
-//	    currentManager.setDoubleBufferingEnabled(true);
-//	  }
-
 }
