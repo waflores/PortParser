@@ -17,7 +17,6 @@ import java.awt.event.*;
 import java.awt.print.*;
 import javax.swing.*;
 
-
 /*******************************************************************************
 * Purpose: Class definition for FileViewer editor
 * 
@@ -50,13 +49,13 @@ public class ParserUI implements ActionListener {
 	private JMenuItem saveAsItem;
 	private JMenuItem printPageItem;
 	private JMenuItem exitProgramItem;
-	
 	private JMenu parseOptions; // parsing
 	private JMenuItem parseItem; 
-	
 	private JMenu helpOptions; // view
 	private JMenuItem aboutFileItem;
 	private String currentFileName = null;
+	
+	
 	/*******************************************************************************
 	* Purpose: main function to be activated with command line paramters
 	* Passed: The file name of the file to be edited.
@@ -64,9 +63,8 @@ public class ParserUI implements ActionListener {
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
-	//@SuppressWarnings("unused")
 	public static void main (String[] args) throws Exception {
-/* Process cmdlineArgs - don't have them */
+		/* Process cmdlineArgs - don't have them */
 		switch (args.length) {
 			/*case 2: identifiers = args[1];
 			case 1: filename = args[0];
@@ -297,13 +295,13 @@ public class ParserUI implements ActionListener {
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
-	private void printToConsole(String msg) {
+	public void printToConsole(String msg) {
 		outTextArea.append(msg + newLine);
 		vsb.setValue(vsb.getMaximum());
 		outTextArea.setCaretPosition(outTextArea.getDocument().getLength());
 	}
 	
-	private void clearScreen() {
+	public void clearScreen() {
 		outTextArea.setText("");
 	}
 	
