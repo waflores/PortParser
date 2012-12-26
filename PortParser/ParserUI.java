@@ -22,6 +22,7 @@ import java.awt.print.*;
 import javax.print.attribute.*;
 import javax.swing.*;
 
+
 /*******************************************************************************
 * Purpose: Class definition for FileViewer editor
 * 
@@ -35,6 +36,7 @@ public class ParserUI implements ActionListener, Printable{
 	private JPanel mainPanel = new JPanel();
 	private JPanel btnPanel = new JPanel();
 	private JTextArea outTextArea = new JTextArea(defaultRows, defaultColumns);
+	private JTextArea dummyTextArea = new JTextArea(); /* Hidden from view for printing purposes */
 
 	private String newLine = System.getProperty("line.separator"); /* Reactivate */
 	private JScrollPane outScrollPane = new JScrollPane(outTextArea);
@@ -55,9 +57,6 @@ public class ParserUI implements ActionListener, Printable{
 	private JMenu helpOptions; // view
 	private JMenuItem aboutFileItem;
 	private String currentFileName = null;
-	private Component componentToBePrinted; 
-	
-	
 	/*******************************************************************************
 	* Purpose: main function to be activated with command line paramters
 	* Passed: The file name of the file to be edited.
@@ -108,6 +107,9 @@ public class ParserUI implements ActionListener, Printable{
 		mainPanel.add(outScrollPane);
 
 		outTextArea.setEditable(true); // Just make this a display text area
+		dummyTextArea.setLineWrap(true); // this is for printing purposes
+		dummyTextArea.setWrapStyleWord(true);
+		
 		/* Create the menuBar */
 		createFileMenu();
 		createParseMenu();
@@ -122,9 +124,8 @@ public class ParserUI implements ActionListener, Printable{
 		/* Use the native L & F - throughout */
 		try {
             String cn = UIManager.getSystemLookAndFeelClassName();
-            UIManager.setLookAndFeel(cn); // Use the native L&F
-        } catch (Exception cnf) {
-        }
+            UIManager.setLookAndFeel(cn); 
+        } catch (Exception cnf) {/* Don't do anything */}
 		
 		clearScreen();
 		mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -261,18 +262,7 @@ public class ParserUI implements ActionListener, Printable{
 			}
 		}
 		if (ae.getSource() == printPageItem) {
-	        PrinterJob job = PrinterJob.getPrinterJob();
-	        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-	        PageFormat pf = job.pageDialog(aset);
-	        job.setPrintable(this, pf);
-	        boolean ok = job.printDialog(aset);
-	        if (ok) {
-	            try {
-	                 job.print(aset);
-	            } catch (PrinterException ex) {
-	             /* The job did not successfully complete */
-	            }
-	        }
+			this.print();
 		}
 		if (ae.getSource() == exitProgramItem) {
 			int retval = JOptionPane.showConfirmDialog(mainWindow, "Do you want to save file before exiting?", "Closing Program", JOptionPane.YES_NO_CANCEL_OPTION);
@@ -366,11 +356,46 @@ public class ParserUI implements ActionListener, Printable{
 		diskFile.close();
 	}
 
+    // Printing text
+    public void print() {
+//        PrinterJob job = PrinterJob.getPrinterJob();
+//        PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+//        PageFormat pf = job.pageDialog(aset);
+//        job.setPrintable(this, pf);
+//        boolean ok = job.printDialog(aset);
+//        if (ok) {
+//            try {
+//                 job.print(aset);
+//            } catch (PrinterException ex) {
+//             /* The job did not successfully complete */
+//            }
+        //} // if (ok)
+        	
+        // Print all text
+        if (outTextArea.getSelectedText() == null)
+        {
+            dummyTextArea.setText(outTextArea.getText());
+        }
+        else // Print selected text
+        {
+            dummyTextArea.setText(outTextArea.getSelectedText());
+        }
+        try
+        {
+            // This will show the print dialog.
+            dummyTextArea.print();
+        }
+        catch (PrinterException e)
+        {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        // Set focus so that selected text is highlighted.
+        outTextArea.requestFocusInWindow();
+    } 
+
 	@Override
 	public int print(Graphics g, PageFormat pf, int page)
 			throws PrinterException {
-		this.componentToBePrinted = outTextArea;
-		
 		//String[] textLines = outTextArea.getText().length() 
 		FontMetrics metrics = g.getFontMetrics();
 		int lineHeight = metrics.getHeight();
