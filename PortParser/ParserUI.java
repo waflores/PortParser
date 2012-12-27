@@ -18,7 +18,9 @@ import java.awt.print.*;
 import javax.swing.*;
 
 /*******************************************************************************
-* Purpose: Class definition for FileViewer editor
+* ParserUI: Servers as the FileViewer user interface for parsing switch.
+* The actual parsing occurs in the IdTagObjs, so this is actually just a
+* 	stand alone fileviewer and editor.
 * 
 * Author: Will Flores waflores@ncsu.edu
 *******************************************************************************/
@@ -54,7 +56,7 @@ public class ParserUI implements ActionListener {
 	private JMenu helpOptions; // view
 	private JMenuItem aboutFileItem;
 	private String currentFileName = null;
-	
+	private IdTagObjs parserObj = new IdTagObjs(this); // parser object
 	
 	/*******************************************************************************
 	* Purpose: main function to be activated with command line paramters
@@ -174,7 +176,7 @@ public class ParserUI implements ActionListener {
 	private void createParseMenu() {
 		parseOptions = new JMenu("Parse");
 		parseOptions.setMnemonic(KeyEvent.VK_R);
-		parseItem = new JMenuItem("Parse this file...");
+		parseItem = new JMenuItem("Parse a file...");
 		parseItem.addActionListener(this);
 		parseOptions.add(parseItem);
 	}
@@ -281,10 +283,41 @@ public class ParserUI implements ActionListener {
 		}
 		
 		/* Process through Parse Menu events */
-		if (ae.getSource() == parseItem) {}
+		if (ae.getSource() == parseItem) {
+			String filename = null;
+			String identifiers = null;
+
+			JFileChooser jfc = new JFileChooser();
+			int retval = jfc.showOpenDialog(jfc);
+
+			if (retval == JFileChooser.APPROVE_OPTION) {
+				filename = jfc.getSelectedFile().getAbsolutePath();
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "You must choose a file name to continue.");
+				return; /* Don't parse anything */
+			}
+			
+			identifiers = JOptionPane.showInputDialog(null, 
+						"Input tokens separated by semicolons", 
+						"rxByteCount;txByteCount;rxHCOctets;txHCOctets");
+			
+			/* figure out what tokens we have */
+			if (identifiers == null || identifiers.length() == 0) {
+				JOptionPane.showMessageDialog(null, "You must choose tokens to parse.");
+				return;
+			}
+			else {	/* parse the file */
+				clearScreen();
+				parserObj.parser(identifiers,";", filename);
+			}
+		}
 		
 		/* Process through Help Menu events */
-		if (ae.getSource() == aboutFileItem) {}
+		if (ae.getSource() == aboutFileItem) {
+			JOptionPane.showMessageDialog(null, "FileViewer with Parser. Works like previous parser for Switches; however with" +
+					" some text-editor qualities.");
+		}
 	}
 	
 	/***** Control the Display *****/
@@ -301,10 +334,24 @@ public class ParserUI implements ActionListener {
 		outTextArea.setCaretPosition(outTextArea.getDocument().getLength());
 	}
 	
+	/*******************************************************************************
+	* Purpose: Clears the text on the editable text box
+	* Passed: No values passed.
+	* Locals: No locals variables used.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
 	public void clearScreen() {
 		outTextArea.setText("");
 	}
 	
+	/*******************************************************************************
+	* Purpose: Opens a file in the textbox.
+	* Passed: String fileName - file to be opened.
+	* Locals: BufferedReader diskFile - the reader to process the text file.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
 	private void openFile(String fileName) throws IOException {
 		BufferedReader diskFile = new BufferedReader(new FileReader(fileName));
 		mainWindow.setTitle("The contents of " + fileName + " is:");
@@ -326,6 +373,13 @@ public class ParserUI implements ActionListener {
 		}
 	}
 	
+	/*******************************************************************************
+	* Purpose: Saves the input from the textarea to a file.
+	* Passed: No values passed.
+	* Locals: Help save the input to a file specified by the user.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
 	private void saveFile () throws IOException {
 		JFileChooser saveFile = new JFileChooser();
 		int retval = saveFile.showSaveDialog(saveFile);
@@ -347,6 +401,13 @@ public class ParserUI implements ActionListener {
 		}
 	}
 	
+	/*******************************************************************************
+	* Purpose: Saves the input from the textarea to a file already specified.
+	* Passed: String currentFileName - name of file that was chosen to have information saved.
+	* Locals: Help save the input to a file specified by the user.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
 	private void saveFile(String currentFileName) throws IOException {
 		String fileData = outTextArea.getText();
 		BufferedWriter diskFile = new BufferedWriter(new FileWriter(currentFileName));
@@ -354,7 +415,13 @@ public class ParserUI implements ActionListener {
 		diskFile.close();
 	}
 
-    // Printing text
+	/*******************************************************************************
+	* Purpose: Formats the text to be printed to installed printers.
+	* Passed: No values passed.
+	* Locals: No local variables used.
+	* Returned: No values returned.
+	* Author: Will Flores waflores@ncsu.edu
+	*******************************************************************************/
     public void print() {
         if (outTextArea.getSelectedText() == null) {
             dummyTextArea.setText(outTextArea.getText());
@@ -371,5 +438,5 @@ public class ParserUI implements ActionListener {
         }
         // Set focus so that selected text is highlighted.
         outTextArea.requestFocusInWindow();
-    } 
+    }
 }
