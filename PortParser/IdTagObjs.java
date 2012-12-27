@@ -2,24 +2,22 @@ import java.io.*;
 import java.util.*;
 
 /*******************************************************************************
-* IdTagObjs: Servers as the FileViewer user interface for parsing switch.
-* The actual parsing occurs in the IdTagsObjs, so this is actually just a
-* 	stand alone fileviewer and editor.
+* IdTagObjs: Serves as the parsing algorithm and data structure for the type of
+* 	input file used by Switches.
 * 
 * Author: Will Flores waflores@ncsu.edu
 *******************************************************************************/
 public class IdTagObjs {
-	private ParserUI pui; 
-	
+	private ParserUI pui;
 	private String commaDelimeter = ",";
 	private String identifierTag = null;
 	private String idVal = "0";
 
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
-	* Returned: No values returned.
+	* Purpose: Constructor that is invoked by the fileviewer.
+	* Passed: Parser pui - saves Fileviewer pointer to link object.
+	* Locals: No local variables used.
+	* Returned: IdTagObjs object.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
 	public IdTagObjs(ParserUI pui) {
@@ -27,10 +25,10 @@ public class IdTagObjs {
 	}
 	
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
-	* Returned: No values returned.
+	* Purpose: Constructor that is invoked by this object for parsing.
+	* Passed: String indentifierTag - token processed.
+	* Locals: No local variables used.
+	* Returned: IdTagObjs object.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
 	public IdTagObjs(String identifierTag) {
@@ -41,9 +39,9 @@ public class IdTagObjs {
 	}
 
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
+	* Purpose: Clears token count.
+	* Passed: No values passed.
+	* Locals: No local variables used.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
@@ -52,10 +50,10 @@ public class IdTagObjs {
 	}
 	
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
-	* Returned: No values returned.
+	* Purpose: Retrieves token.
+	* Passed: No values passed.
+	* Locals: No local variables used.
+	* Returned: The token from this object.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
 	public String getIdentifierTag() {
@@ -63,9 +61,9 @@ public class IdTagObjs {
 	}
 
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
+	* Purpose: Sets token.
+	* Passed: String indentifierTag - token processed.
+	* Locals: No local variables used.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
@@ -74,10 +72,10 @@ public class IdTagObjs {
 	}
 
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
-	* Returned: No values returned.
+	* Purpose: Retrieves token count.
+	* Passed: No values passed.
+	* Locals: No local variables used.
+	* Returned: The token count from this object.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
 	public String getIdVal() {
@@ -85,9 +83,9 @@ public class IdTagObjs {
 	}
 
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
+	* Purpose: Sets token count.
+	* Passed: String idVal - token count.
+	* Locals: No local variables used.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
@@ -96,9 +94,11 @@ public class IdTagObjs {
 	}
 	
 	/*******************************************************************************
-	* Purpose: Saves the input from the textarea to a file already specified.
-	* Passed: String currentFileName - name of file that was chosen to have information saved.
-	* Locals: Help save the input to a file specified by the user.
+	* Purpose: Parsing algorithm for switch input.
+	* Passed: String identifiers - identifiers from user to find.
+	* 		  String regex - delimiters for identifiers from user.
+	* 		  String fileName - file to parse.
+	* Locals: Help save the parse file and displays results.
 	* Returned: No values returned.
 	* Author: Will Flores waflores@ncsu.edu
 	*******************************************************************************/
@@ -109,7 +109,7 @@ public class IdTagObjs {
 		ArrayList <IdTagObjs> idTags = new ArrayList<IdTagObjs>(); 
 		idTags.add(new IdTagObjs("Port")); // add the port identifiers
 		
-		BufferedReader diskFile;
+		BufferedReader diskFile; /* File to parse */
 		try {
 			diskFile = new BufferedReader(new FileReader(fileName));
 			String[] inputid = identifiers.split(regex);
@@ -124,10 +124,7 @@ public class IdTagObjs {
 			String[] ids = Arrays.copyOf(idobjArray, idobjArray.length, String[].class);
 	
 			boolean gotFirstPortTag = false;
-	//					boolean gotNextPortTag = false;
 			String line = null;
-			// TODO Rem this for csv printout
-			///serverWindow.setTitle("Looking for the contents of: " + fileName);
 	
 			// Print header
 			String header = null;
@@ -181,21 +178,17 @@ public class IdTagObjs {
 					idTags.get(0).setIdVal(line);
 				}
 			}
-	
 		} 
-		// Flush all the stuff to screen if EOF is reached
-		catch (NullPointerException npe) {
+		catch (NullPointerException npe) { // Flush all the stuff to screen if EOF is reached
 				String output = null;
 				for (IdTagObjs a : idTags) {
 					if (output == null) output = a.getIdVal();
 					else output += commaDelimeter + a.getIdVal();
 				}
-				pui.printToConsole(output);
-				// Be done with the parsing
+				pui.printToConsole(output); // Be done with the parsing
 		}
 		catch (IOException fnfe) {
 			pui.printToConsole("Can't open the file, make sure it's there.");
 		} 
-
 	}
-}
+} /* End IdTagObjs */

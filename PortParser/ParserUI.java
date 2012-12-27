@@ -18,7 +18,7 @@ import java.awt.print.*;
 import javax.swing.*;
 
 /*******************************************************************************
-* ParserUI: Servers as the FileViewer user interface for parsing switch.
+* ParserUI: Serves as the FileViewer user interface for parsing switch.
 * The actual parsing occurs in the IdTagObjs, so this is actually just a
 * 	stand alone fileviewer and editor.
 * 
@@ -439,4 +439,4 @@ public class ParserUI implements ActionListener {
         // Set focus so that selected text is highlighted.
         outTextArea.requestFocusInWindow();
     }
-}
+} /* End ParserUI */
