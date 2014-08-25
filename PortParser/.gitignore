@@ -1,0 +1,13 @@
+# Gitignore for Java project
+*.class
+
+# Mobile
+.mtj.tmp/
+
+# Pkg files
+*.jar
+*.war
+*.ear
+
+# vm crashlogs
+hs_err_pid*
